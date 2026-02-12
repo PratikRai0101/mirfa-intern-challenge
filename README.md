@@ -1,225 +1,64 @@
-# 🚀 Mirfa Software Engineer Intern Challenge
-## Secure Transactions Mini-App (Turbo + Fastify + Vercel)
+# Mirfa Secure Transaction Challenge
 
-Welcome 👋
+Secure transaction mini-app using a TurboRepo monorepo with Fastify, Next.js, and a shared AES-256-GCM envelope encryption library.
 
-This is **not a coding test**.
+## Architecture
 
-This challenge simulates a **real engineering task** you might receive on your first week at Mirfa.
+- `apps/web` — Next.js frontend
+- `apps/api` — Fastify backend with in-memory storage
+- `packages/crypto` — shared envelope encryption logic (AES-256-GCM)
 
-Instead of solving algorithm puzzles, you will:
+## Encryption Strategy (Envelope Encryption)
 
-- structure a real monorepo
-- design an API
-- implement encryption correctly
-- deploy to production
-- explain your thinking
+Each transaction uses a fresh data encryption key (DEK) to protect the payload, and the DEK is wrapped by a master key (MK).
 
-If you enjoy building real systems end-to-end, you’ll probably enjoy this 🙂
+1. Generate a random 32-byte DEK per transaction.
+2. Encrypt the JSON payload using AES-256-GCM with the DEK and a unique 12-byte nonce.
+3. Wrap the DEK using AES-256-GCM with the master key and a separate 12-byte nonce.
+4. Store ciphertext, nonces, and 16-byte GCM auth tags as hex strings.
 
----
+GCM auth tags provide integrity: tampering with ciphertext or tags causes decryption to fail.
 
-# 🎯 What we evaluate
+## How to Run Locally
 
-We care about:
-
-- problem solving
-- system design
-- clean code
-- correctness
-- debugging skills
-- deployment ability
-- ownership & clarity
-
-We **do NOT** care about:
-
-- fancy UI
-- perfect styling
-- trick algorithms
-- memorized LeetCode problems
-
----
-
-# ⏱ Timebox
-
-Expected effort: **6–10 hours total**
-
-Deadline: **submit within 2–3 days**
-
-You may use:
-- Google
-- StackOverflow
-- ChatGPT / Claude / LLMs
-
-But you **must fully understand and explain your solution**.
-
-If you cannot explain it, we assume you did not build it.
-
----
-
-# 🧩 What you will build
-
-Create a **TurboRepo monorepo** containing:
-
-apps/web → Next.js frontend
-apps/api → Fastify backend
-packages/crypto → shared encryption logic
-
-
-The app should allow a user to:
-
-1. Enter a JSON payload + partyId
-2. Encrypt & store it
-3. Retrieve encrypted record
-4. Decrypt it back to original
-
-Think of this as a **mini secure transaction service**.
-
----
-
-# 🛠 Tech Requirements
-
-Please use:
+### Prerequisites
 
 - Node.js 20+
 - pnpm
-- TurboRepo
-- Fastify (API)
-- Next.js (Web)
-- TypeScript
-- Vercel deployment
 
-Project must run locally with:
+### Setup
 
+```bash
 pnpm install
-pnpm dev
-
-
----
-
-# 📦 Functional Requirements
-
-## Backend (Fastify)
-
-### POST `/tx/encrypt`
-
-Input:
-
-```json
-{
-  "partyId": "party_123",
-  "payload": { "amount": 100, "currency": "AED" }
-}
+pnpm build
 ```
-Output: encrypted record
 
-### GET /tx/:id
+### Environment Variables
 
-Return stored encrypted record (no decrypt)
+API (`apps/api/.env` or shell):
 
-### POST /tx/:id/decrypt
-Return original decrypted payload
+```
+MASTER_KEY_HEX=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+```
 
-### Storage can be:
+Web (`apps/web/.env.local`):
 
-in-memory Map ✅ fine
+```
+NEXT_PUBLIC_API_URL=http://localhost:8080
+```
 
-SQLite/Postgres ✅ bonus
+### Start
 
-### 💻 Frontend (Next.js)
-Single page is enough:
+```bash
+pnpm dev
+```
 
-input: partyId
+The API runs on `http://localhost:8080` and the web app is served by Next.js.
 
-textarea: JSON payload
+## API Reference
 
-Encrypt & Save
-
-Fetch
-
-Decrypt
-
-show results
-
-Keep it simple and clean.
-
-### 🔐 Core Task — Encryption (Important)
-Implement Envelope Encryption using AES-256-GCM.
-
-Steps
-Generate random DEK (32 bytes)
-
-Encrypt payload using DEK (AES-256-GCM)
-
-Wrap DEK using Master Key (AES-256-GCM)
-
-Store everything
-
-Binary values should be stored as hex strings.
-
-### 📦 Data Model
-export type TxSecureRecord = {
-  id: string
-  partyId: string
-  createdAt: string
-
-  payload_nonce: string
-  payload_ct: string
-  payload_tag: string
-
-  dek_wrap_nonce: string
-  dek_wrapped: string
-  dek_wrap_tag: string
-
-  alg: "AES-256-GCM"
-  mk_version: 1
-}
-#### ✅ Validation Rules
-Must reject if:
-
-nonce is not 12 bytes
-
-tag is not 16 bytes
-
-invalid hex
-
-ciphertext tampered
-
-tag tampered
-
-decryption fails
-
-🧪 Tests (optional)
-Write tests verifying:
-
-encrypt → decrypt works
-
-tampered ciphertext fails
-
-tampered tag fails
-
-wrong nonce length fails
-
-Minimum ~5 tests.
-
-#### 🚀 Deployment (required)
-Deploy BOTH:
-
-Web → Vercel
-
-API → Vercel
-
-Provide working URLs.
-
-#### 🎥 Loom Video (very important)
-Record a 2–3 minute walkthrough explaining:
-
-how Turbo is configured
-
-how encryption works
-
-how deployment works
-
-one bug you solved
-
-what you'd improve
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| POST | `/tx/encrypt` | Encrypts and stores a payload, returns `TxSecureRecord`. |
+| GET | `/tx/:id` | Returns the stored encrypted record (no decrypt). |
+| POST | `/tx/:id/decrypt` | Decrypts the stored record and returns the original payload. |
