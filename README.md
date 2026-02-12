@@ -1,4 +1,4 @@
-<img width="1896" height="1030" alt="image" src="https://github.com/user-attachments/assets/847e5958-e064-43f7-8b1d-39f399eb72d1" /># Mirfa Secure Transaction Challenge
+# Mirfa Secure Transaction Challenge
 
 Secure transaction mini-app using a TurboRepo monorepo with Fastify, Next.js, and a shared AES-256-GCM envelope encryption library.
 
