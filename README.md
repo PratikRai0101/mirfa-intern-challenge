@@ -23,7 +23,7 @@ GCM auth tags provide integrity: tampering with ciphertext or tags causes decryp
 
 - **Frontend (Web)**: https://mirfa-intern-challenge-web-pratik.vercel.app/
 - **Backend (API)**: https://mirfa-intern-challenge-api-pratik.vercel.app/
-- **Documentation**: [Link to your Loom Video]
+- **Documentation**: https://www.loom.com/share/62486d88944148f8aca8363aff3e63b0
 
 UI Screenshot: <img width="1896" height="1030" alt="image" src="https://github.com/user-attachments/assets/97725ae4-e8f3-4283-bc4c-1f4301c6d5a5" />
 
