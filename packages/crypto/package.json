@@ -1,0 +1,13 @@
+{
+  "name": "@mirfa/crypto",
+  "version": "0.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc -p tsconfig.json --emitDeclarationOnly",
+    "test": "vitest"
+  },
+  "devDependencies": {
+    "@types/node": "^20.4.2"
+  }
+}
