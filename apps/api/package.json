@@ -1,0 +1,16 @@
+{
+  "name": "@mirfa/api",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "fastify": "^4.23.0",
+    "@mirfa/crypto": "workspace:*",
+    "@fastify/cors": "^9.1.1"
+  },
+  "devDependencies": {
+    "tsx": "^3.12.7"
+  }
+}
