@@ -3,10 +3,15 @@
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": []
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
+    "test": {
+      "dependsOn": ["^build"]
+    },
+    "lint": {},
     "dev": {
-      "cache": false
+      "cache": false,
+      "persistent": true
     }
   }
 }
