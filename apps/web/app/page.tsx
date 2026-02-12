@@ -239,8 +239,8 @@ export default function Page() {
                 )}
               </div>
               <div className="rounded-md border border-border-light bg-code-bg-light p-5 shadow-sm">
-                <pre className="text-xs leading-6 text-text-main-light md:text-sm">
-                  <code className="font-mono">
+                <pre className="max-w-full overflow-x-auto whitespace-pre-wrap text-xs leading-6 text-text-main-light md:text-sm">
+                  <code className="font-mono break-all">
                     {encryptedRecord ? renderJson(encryptedRecord) : "No record yet."}
                   </code>
                 </pre>
@@ -252,8 +252,8 @@ export default function Page() {
                 <h2 className="text-xl font-bold text-text-main-light">Decrypted Payload</h2>
               </div>
               <div className="rounded-md border border-border-light bg-code-bg-light p-5 shadow-sm">
-                <pre className="text-xs leading-6 text-text-main-light md:text-sm">
-                  <code className="font-mono">
+                <pre className="max-w-full overflow-x-auto whitespace-pre-wrap text-xs leading-6 text-text-main-light md:text-sm">
+                  <code className="font-mono break-all">
                     {decryptedPayload ? renderJson(decryptedPayload) : "No decrypted payload yet."}
                   </code>
                 </pre>
