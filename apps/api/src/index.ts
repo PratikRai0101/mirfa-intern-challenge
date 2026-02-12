@@ -58,15 +58,26 @@ server.post('/tx/:id/decrypt', async (request, reply) => {
   }
 })
 
-const start = async () => {
-  try {
-    await server.register(cors, { origin: true })
-    await server.listen({ port: PORT, host: '0.0.0.0' })
-    server.log.info(`listening on ${PORT}`)
-  } catch (err) {
-    server.log.error(err)
-    process.exit(1)
-  }
+// Vercel Serverless Handler
+export default async function handler(req: any, res: any) {
+  await server.ready()
+  server.server.emit('request', req, res)
 }
 
-start()
+// Local Development Fallback
+// Only start the server if this file is run directly (not imported by Vercel)
+// @ts-ignore
+if (require.main === module) {
+  const start = async () => {
+    try {
+      await server.register(cors, { origin: true })
+      await server.listen({ port: PORT, host: '0.0.0.0' })
+      console.log('Server running locally at http://localhost:8080')
+    } catch (err) {
+      server.log.error(err)
+      process.exit(1)
+    }
+  }
+
+  start()
+}
