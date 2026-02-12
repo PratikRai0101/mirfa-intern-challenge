@@ -148,8 +148,7 @@ export default function Page() {
             <span className="text-lg font-semibold tracking-tight">Mirfa Secure</span>
           </div>
           <div className="flex items-center gap-4">
-            <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-            <span className="text-xs font-mono uppercase tracking-widest text-text-muted-light">System Online</span>
+            <span className="text-xs font-mono uppercase tracking-widest text-text-muted-light">Build by Pratik Rai 🖤</span>
           </div>
         </div>
       </nav>
@@ -264,14 +263,8 @@ export default function Page() {
 
         <footer className="mt-20 flex flex-col items-start justify-between border-t border-border-light pt-8 text-sm text-text-muted-light md:flex-row md:items-center">
           <div className="mb-4 flex items-center gap-4 md:mb-0">
-            <span className="font-mono text-xs opacity-75">v2.5.0-beta</span>
+            <span className="font-mono text-xs opacity-75">v1.0.0-beta</span>
             <span className="h-3 w-px bg-gray-300" />
-            <a className="transition-colors hover:text-primary" href="#">
-              Documentation
-            </a>
-            <a className="transition-colors hover:text-primary" href="#">
-              API Reference
-            </a>
           </div>
           <div className="flex items-center gap-2">
             <span className="material-icons-outlined text-base">lock</span>
