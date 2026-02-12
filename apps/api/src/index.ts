@@ -34,7 +34,11 @@ server.post('/tx/encrypt', { schema: { body: encryptBodySchema } }, async (reque
     if (!supabase) return reply.status(500).send({ error: 'SUPABASE_URL or SUPABASE_ANON_KEY not configured on server' })
 
     const record = encryptPayload(body.payload, body.partyId, masterKey)
-    const { data, error } = await supabase.from(tableName).insert(record).select().single()
+    const { data, error } = await supabase
+      .from(tableName)
+      .insert(record)
+      .select('id,partyId,payloadNonce,payloadCt,payloadTag,dekWrapNonce,dekWrapped,dekWrapTag,createdAt,alg,mk_version')
+      .single()
     if (error) {
       request.log.error(error)
       return reply.status(500).send({ error: 'failed to store record' })
@@ -50,7 +54,11 @@ server.get('/tx/:id', async (request, reply) => {
   const id = (request.params as any).id
   if (!supabase) return reply.status(500).send({ error: 'SUPABASE_URL or SUPABASE_ANON_KEY not configured on server' })
 
-  const { data, error } = await supabase.from(tableName).select('*').eq('id', id).maybeSingle()
+  const { data, error } = await supabase
+    .from(tableName)
+    .select('id,partyId,payloadNonce,payloadCt,payloadTag,dekWrapNonce,dekWrapped,dekWrapTag,createdAt,alg,mk_version')
+    .eq('id', id)
+    .maybeSingle()
   if (error) return reply.status(500).send({ error: 'failed to fetch record' })
   if (!data) return reply.status(404).send({ error: 'not found' })
   return data
@@ -60,7 +68,11 @@ server.post('/tx/:id/decrypt', async (request, reply) => {
   const id = (request.params as any).id
   if (!supabase) return reply.status(500).send({ error: 'SUPABASE_URL or SUPABASE_ANON_KEY not configured on server' })
 
-  const { data, error } = await supabase.from(tableName).select('*').eq('id', id).maybeSingle()
+  const { data, error } = await supabase
+    .from(tableName)
+    .select('id,partyId,payloadNonce,payloadCt,payloadTag,dekWrapNonce,dekWrapped,dekWrapTag,createdAt,alg,mk_version')
+    .eq('id', id)
+    .maybeSingle()
   if (error) return reply.status(500).send({ error: 'failed to fetch record' })
   if (!data) return reply.status(404).send({ error: 'not found' })
 

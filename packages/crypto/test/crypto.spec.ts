@@ -16,19 +16,19 @@ describe('crypto envelope', () => {
   it('throws when payload_ct is tampered', () => {
     const record = encryptPayload(payload, partyId, masterKey)
     // flip a char in ciphertext
-    const tampered: TxSecureRecord = { ...record, payload_ct: record.payload_ct.slice(0, -1) + (record.payload_ct.slice(-1) === '0' ? '1' : '0') }
+    const tampered: TxSecureRecord = { ...record, payloadCt: record.payloadCt.slice(0, -1) + (record.payloadCt.slice(-1) === '0' ? '1' : '0') }
     expect(() => decryptRecord(tampered, masterKey)).toThrow()
   })
 
   it('throws when payload_tag is tampered', () => {
     const record = encryptPayload(payload, partyId, masterKey)
-    const tampered: TxSecureRecord = { ...record, payload_tag: record.payload_tag.slice(0, -1) + (record.payload_tag.slice(-1) === '0' ? '1' : '0') }
+    const tampered: TxSecureRecord = { ...record, payloadTag: record.payloadTag.slice(0, -1) + (record.payloadTag.slice(-1) === '0' ? '1' : '0') }
     expect(() => decryptRecord(tampered, masterKey)).toThrow()
   })
 
   it('throws when nonce length is invalid', () => {
     const record = encryptPayload(payload, partyId, masterKey)
-    const bad: TxSecureRecord = { ...record, payload_nonce: record.payload_nonce.slice(0, -2) }
+    const bad: TxSecureRecord = { ...record, payloadNonce: record.payloadNonce.slice(0, -2) }
     expect(() => decryptRecord(bad, masterKey)).toThrow()
   })
 
@@ -40,19 +40,19 @@ describe('crypto envelope', () => {
 
   it('throws when payload_ct is invalid hex', () => {
     const record = encryptPayload(payload, partyId, masterKey)
-    const bad: TxSecureRecord = { ...record, payload_ct: 'zz' + record.payload_ct.slice(2) }
+    const bad: TxSecureRecord = { ...record, payloadCt: 'zz' + record.payloadCt.slice(2) }
     expect(() => decryptRecord(bad, masterKey)).toThrow(/validation failed/i)
   })
 
   it('throws when GCM tag length is invalid', () => {
     const record = encryptPayload(payload, partyId, masterKey)
-    const bad: TxSecureRecord = { ...record, payload_tag: record.payload_tag.slice(0, -2) }
+    const bad: TxSecureRecord = { ...record, payloadTag: record.payloadTag.slice(0, -2) }
     expect(() => decryptRecord(bad, masterKey)).toThrow(/validation failed/i)
   })
 
   it('throws when DEK wrap is tampered', () => {
     const record = encryptPayload(payload, partyId, masterKey)
-    const tampered: TxSecureRecord = { ...record, dek_wrapped: record.dek_wrapped.slice(0, -1) + (record.dek_wrapped.slice(-1) === '0' ? '1' : '0') }
+    const tampered: TxSecureRecord = { ...record, dekWrapped: record.dekWrapped.slice(0, -1) + (record.dekWrapped.slice(-1) === '0' ? '1' : '0') }
     expect(() => decryptRecord(tampered, masterKey)).toThrow()
   })
 })

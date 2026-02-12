@@ -4,12 +4,12 @@ export interface TxSecureRecord {
   id: string
   partyId: string
   createdAt: string
-  payload_nonce: string
-  payload_ct: string
-  payload_tag: string
-  dek_wrap_nonce: string
-  dek_wrapped: string
-  dek_wrap_tag: string
+  payloadNonce: string
+  payloadCt: string
+  payloadTag: string
+  dekWrapNonce: string
+  dekWrapped: string
+  dekWrapTag: string
   alg: 'AES-256-GCM'
   mk_version: 1
 }
@@ -49,12 +49,12 @@ export function encryptPayload(payload: any, partyId: string, masterKeyHex: stri
     id,
     partyId,
     createdAt,
-    payload_nonce: payloadNonce.toString('hex'),
-    payload_ct: payloadCt.toString('hex'),
-    payload_tag: payloadTag.toString('hex'),
-    dek_wrap_nonce: dekWrapNonce.toString('hex'),
-    dek_wrapped: dekWrapped.toString('hex'),
-    dek_wrap_tag: dekWrapTag.toString('hex'),
+    payloadNonce: payloadNonce.toString('hex'),
+    payloadCt: payloadCt.toString('hex'),
+    payloadTag: payloadTag.toString('hex'),
+    dekWrapNonce: dekWrapNonce.toString('hex'),
+    dekWrapped: dekWrapped.toString('hex'),
+    dekWrapTag: dekWrapTag.toString('hex'),
     alg: 'AES-256-GCM',
     mk_version: 1
   }
@@ -66,12 +66,12 @@ export function decryptRecord(record: TxSecureRecord, masterKeyHex: string): any
   if (!record || typeof record !== 'object') throw new Error('record is required')
   // validate hex lengths
   try {
-    ensureHex(record.payload_nonce, 24, 'payload_nonce')
-    ensureHex(record.payload_tag, 32, 'payload_tag')
-    ensureHex(record.dek_wrap_nonce, 24, 'dek_wrap_nonce')
-    ensureHex(record.dek_wrap_tag, 32, 'dek_wrap_tag')
-    ensureHex(record.payload_ct, undefined, 'payload_ct')
-    ensureHex(record.dek_wrapped, undefined, 'dek_wrapped')
+    ensureHex(record.payloadNonce, 24, 'payloadNonce')
+    ensureHex(record.payloadTag, 32, 'payloadTag')
+    ensureHex(record.dekWrapNonce, 24, 'dekWrapNonce')
+    ensureHex(record.dekWrapTag, 32, 'dekWrapTag')
+    ensureHex(record.payloadCt, undefined, 'payloadCt')
+    ensureHex(record.dekWrapped, undefined, 'dekWrapped')
   } catch (err) {
     throw new Error(`validation failed: ${(err as Error).message}`)
   }
@@ -81,9 +81,9 @@ export function decryptRecord(record: TxSecureRecord, masterKeyHex: string): any
   const mk = Buffer.from(masterKeyHex, 'hex')
 
   // Unwrap DEK
-  const dekWrapNonce = Buffer.from(record.dek_wrap_nonce, 'hex')
-  const dekWrapped = Buffer.from(record.dek_wrapped, 'hex')
-  const dekWrapTag = Buffer.from(record.dek_wrap_tag, 'hex')
+  const dekWrapNonce = Buffer.from(record.dekWrapNonce, 'hex')
+  const dekWrapped = Buffer.from(record.dekWrapped, 'hex')
+  const dekWrapTag = Buffer.from(record.dekWrapTag, 'hex')
 
   const dekDec = createDecipheriv('aes-256-gcm', mk, dekWrapNonce)
   dekDec.setAuthTag(dekWrapTag)
@@ -97,9 +97,9 @@ export function decryptRecord(record: TxSecureRecord, masterKeyHex: string): any
   if (dek.length !== 32) throw new Error('invalid DEK length after unwrap')
 
   // Decrypt payload
-  const payloadNonce = Buffer.from(record.payload_nonce, 'hex')
-  const payloadCt = Buffer.from(record.payload_ct, 'hex')
-  const payloadTag = Buffer.from(record.payload_tag, 'hex')
+  const payloadNonce = Buffer.from(record.payloadNonce, 'hex')
+  const payloadCt = Buffer.from(record.payloadCt, 'hex')
+  const payloadTag = Buffer.from(record.payloadTag, 'hex')
 
   const payloadDec = createDecipheriv('aes-256-gcm', dek, payloadNonce)
   payloadDec.setAuthTag(payloadTag)
