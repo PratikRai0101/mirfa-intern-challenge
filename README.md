@@ -5,7 +5,7 @@ Secure transaction mini-app using a TurboRepo monorepo with Fastify, Next.js, an
 ## Architecture
 
 - `apps/web` — Next.js frontend
-- `apps/api` — Fastify backend with in-memory storage
+- `apps/api` — Fastify backend with Supabase persistence
 - `packages/crypto` — shared envelope encryption logic (AES-256-GCM)
 
 ## Encryption Strategy (Envelope Encryption)
@@ -17,7 +17,7 @@ Each transaction uses a fresh data encryption key (DEK) to protect the payload, 
 3. Wrap the DEK using AES-256-GCM with the master key and a separate 12-byte nonce.
 4. Store ciphertext, nonces, and 16-byte GCM auth tags as hex strings.
 
-GCM auth tags provide integrity: tampering with ciphertext or tags causes decryption to fail.
+GCM auth tags provide integrity: tampering with ciphertext or tags causes decryption to fail. All record fields use camelCase to match Supabase schema.
 
 ## How to Run Locally
 
@@ -39,6 +39,8 @@ API (`apps/api/.env` or shell):
 
 ```
 MASTER_KEY_HEX=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+SUPABASE_URL=https://xyz.supabase.co
+SUPABASE_ANON_KEY=your-supabase-anon-key
 ```
 
 Web (`apps/web/.env.local`):
@@ -54,6 +56,10 @@ pnpm dev
 ```
 
 The API runs on `http://localhost:8080` and the web app is served by Next.js.
+
+### Database Schema
+
+Run the Supabase schema in `docs/schema.sql` to create the `transactions` table.
 
 ## API Reference
 
