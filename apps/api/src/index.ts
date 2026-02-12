@@ -1,4 +1,5 @@
 // Minimal Fastify server scaffold (not fully featured yet)
+import 'dotenv/config';
 import Fastify from 'fastify'
 import cors from '@fastify/cors'
 import { encryptPayload, decryptRecord, type TxSecureRecord } from '@mirfa/crypto'
