@@ -68,3 +68,7 @@ Run the Supabase schema in `docs/schema.sql` to create the `transactions` table.
 | POST | `/tx/encrypt` | Encrypts and stores a payload, returns `TxSecureRecord`. |
 | GET | `/tx/:id` | Returns the stored encrypted record (no decrypt). |
 | POST | `/tx/:id/decrypt` | Decrypts the stored record and returns the original payload. |
+
+## Tests
+
+The crypto package includes 8 security-focused tests (tamper checks, invalid hex, wrong tag length, empty payload) and runs in non-watch mode via `pnpm test`.
