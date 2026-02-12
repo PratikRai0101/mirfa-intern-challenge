@@ -52,7 +52,8 @@ export default function Page() {
     try {
       const res = await fetch(`${apiUrl}/tx/${encryptedRecord.id}/decrypt`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" }
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({})
       })
 
       if (!res.ok) {
