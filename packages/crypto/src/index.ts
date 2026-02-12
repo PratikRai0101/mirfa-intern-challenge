@@ -1,6 +1,6 @@
 import { randomBytes, createCipheriv, createDecipheriv, randomUUID } from 'crypto'
 
-export type TxSecureRecord = {
+export interface TxSecureRecord {
   id: string
   partyId: string
   createdAt: string

@@ -2,11 +2,16 @@
 import 'dotenv/config';
 import Fastify from 'fastify'
 import cors from '@fastify/cors'
+import { createClient } from '@supabase/supabase-js'
 import { encryptPayload, decryptRecord, type TxSecureRecord } from '@mirfa/crypto'
 
 const server = Fastify({ logger: true })
+server.register(cors, { origin: true })
 
-const db = new Map<string, TxSecureRecord>()
+const supabaseUrl = process.env.SUPABASE_URL
+const supabaseKey = process.env.SUPABASE_ANON_KEY
+const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null
+const tableName = 'transactions'
 
 const PORT = Number(process.env.PORT || 8080)
 
@@ -26,9 +31,15 @@ server.post('/tx/encrypt', { schema: { body: encryptBodySchema } }, async (reque
   if (!masterKey) return reply.status(500).send({ error: 'MASTER_KEY_HEX not configured on server' })
 
   try {
+    if (!supabase) return reply.status(500).send({ error: 'SUPABASE_URL or SUPABASE_ANON_KEY not configured on server' })
+
     const record = encryptPayload(body.payload, body.partyId, masterKey)
-    db.set(record.id, record)
-    return record
+    const { data, error } = await supabase.from(tableName).insert(record).select().single()
+    if (error) {
+      request.log.error(error)
+      return reply.status(500).send({ error: 'failed to store record' })
+    }
+    return data
   } catch (err) {
     request.log.error(err)
     return reply.status(400).send({ error: (err as Error).message })
@@ -37,25 +48,35 @@ server.post('/tx/encrypt', { schema: { body: encryptBodySchema } }, async (reque
 
 server.get('/tx/:id', async (request, reply) => {
   const id = (request.params as any).id
-  const record = db.get(id)
-  if (!record) return reply.status(404).send({ error: 'not found' })
-  return record
+  if (!supabase) return reply.status(500).send({ error: 'SUPABASE_URL or SUPABASE_ANON_KEY not configured on server' })
+
+  const { data, error } = await supabase.from(tableName).select('*').eq('id', id).maybeSingle()
+  if (error) return reply.status(500).send({ error: 'failed to fetch record' })
+  if (!data) return reply.status(404).send({ error: 'not found' })
+  return data
 })
 
 server.post('/tx/:id/decrypt', async (request, reply) => {
   const id = (request.params as any).id
-  const record = db.get(id)
-  if (!record) return reply.status(404).send({ error: 'not found' })
+  if (!supabase) return reply.status(500).send({ error: 'SUPABASE_URL or SUPABASE_ANON_KEY not configured on server' })
+
+  const { data, error } = await supabase.from(tableName).select('*').eq('id', id).maybeSingle()
+  if (error) return reply.status(500).send({ error: 'failed to fetch record' })
+  if (!data) return reply.status(404).send({ error: 'not found' })
 
   const masterKey = process.env.MASTER_KEY_HEX
   if (!masterKey) return reply.status(500).send({ error: 'MASTER_KEY_HEX not configured on server' })
 
   try {
-    const payload = decryptRecord(record, masterKey)
+    const payload = decryptRecord(data as TxSecureRecord, masterKey)
     return { payload }
   } catch (err) {
+    const message = (err as Error).message
+    if (message.includes('authentication failed') || message.includes('failed to decrypt payload') || message.includes('failed to unwrap DEK')) {
+      return reply.status(422).send({ error: 'Integrity check failed: Data may have been tampered with' })
+    }
     request.log.warn(err)
-    return reply.status(400).send({ error: (err as Error).message })
+    return reply.status(400).send({ error: message })
   }
 })
 
@@ -71,7 +92,6 @@ export default async function handler(req: any, res: any) {
 if (require.main === module) {
   const start = async () => {
     try {
-      await server.register(cors, { origin: true })
       await server.listen({ port: PORT, host: '0.0.0.0' })
       console.log('Server running locally at http://localhost:8080')
     } catch (err) {
